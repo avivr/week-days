@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="he">
+<head>
+  <meta charset="UTF-8">
+  <title>ימי השבוע</title>
+  <link href='https://fonts.googleapis.com/css?family=Amatic+SC' rel='stylesheet' type='text/css'>
+</head>
+<body>
+  <style>
+    html {
+      box-sizing: border-box;
+      background-color: rgba(212, 202, 114, 0.53);
+      font-family:'helvetica neue';
+      font-size: 20px;
+      font-weight: 200;
+    }
+    body {
+      margin: 0;
+    }
+    *, *:before, *:after {
+      box-sizing: inherit;
+    }
+
+    .panels {
+      min-height:100vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: row-reverse;
+    }
+
+    .panel {
+      background:#6B0F9C;
+      box-shadow:inset 0 0 0 5px rgba(255,255,255,0.1);
+      color:white;
+      text-align: center;
+      align-items:center;
+      /* Safari transitionend event.propertyName === flex */
+      /* Chrome + FF transitionend event.propertyName === flex-grow */
+      transition:
+        font-size 0.7s cubic-bezier(0.61,-0.19, 0.7,-0.11),
+        flex 0.7s cubic-bezier(0.61,-0.19, 0.7,-0.11),
+        background 0.2s;
+      font-size: 20px;
+      background-size:cover;
+      background-position:center;
+      flex: 1;
+      justify-content: center;
+      display: flex;
+      flex-direction: column;
+    }
+
+
+    .panel1 { background-color: #F44336; }
+    .panel2 { background-color: #9C27B0; }
+    .panel3 { background-color: #3F51B5; }
+    .panel4 { background-color: #03A9F4; }
+    .panel5 { background-color: #009688; }
+    .panel6 { background-color: #8BC34A; }
+    .panel7 { background-color: #FFEB3B; }
+
+    /* Flex Items */
+    .panel > * {
+      margin:0;
+      width: 100%;
+      transition:transform 0.5s;
+      flex: 1 0 auto;
+      display:flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .panel p {
+      font-family: 'Amatic SC', cursive;
+      text-shadow:0 0 4px rgba(0, 0, 0, 0.72), 0 0 14px rgba(0, 0, 0, 0.45);
+      cursor: pointer;
+    }
+
+    .panel.open {
+      flex: 5;
+      font-size: 2em;
+    }
+
+    .cta {
+      color:white;
+      text-decoration: none;
+    }
+
+    .toolbar { 
+      height: 50px;
+      display: flex;
+      flex-direction: row-reverse;
+      justify-content: space-around;
+      align-items: center;
+    }
+
+    .btn {
+      -webkit-border-radius: 10;
+      -moz-border-radius: 10;
+      border-radius: 10px;
+      font-family: Arial;
+      color: #ffffff;
+      font-size: 20px;
+      background: #53b512;
+      padding: 10px 20px 10px 20px;
+      text-decoration: none;
+    }
+
+    .btn:hover {
+      background: #45eb0e;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+
+  </style>
+
+
+  <div>
+    <div class="toolbar">
+       <div class="btn" id="yesterday">אתמול</div>
+       <div class="btn" id="today">היום</div>
+       <div class="btn" id="tomorrow">מחר</div>
+    </div>
+    <div class="panels">
+      <div class="panel panel1" data-day="1">
+        <p>ראשון</p>
+      </div>
+      <div class="panel panel2" data-day="2">
+        <p>שני</p>
+      </div>
+      <div class="panel panel3" data-day="3">
+        <p>שלישי</p>
+      </div>
+      <div class="panel panel4" data-day="4">
+        <p>רביעי</p>
+      </div>
+      <div class="panel panel5" data-day="5">
+        <p>חמישי</p>
+      </div>
+      <div class="panel panel6" data-day="6">
+        <p>שישי</p>
+      </div>
+      <div class="panel panel7" data-day="7">
+        <p>שבת</p>
+      </div>
+    </div>
+  </div>
+  
+  <audio src="audio/day-1.mp3" data-key="1"></audio>
+  <audio src="audio/day-2.mp3" data-key="2"></audio>
+  <audio src="audio/day-3.mp3" data-key="3"></audio>
+  <audio src="audio/day-4.mp3" data-key="4"></audio>
+  <audio src="audio/day-5.mp3" data-key="5"></audio>
+  <audio src="audio/day-6.mp3" data-key="6"></audio>
+  <audio src="audio/day-7.mp3" data-key="7"></audio>
+
+  <script>
+    const panels = document.querySelectorAll('.panel');
+    
+    function playAudio(day) {
+      const audio = document.querySelector(`audio[data-key="${day}"]`);
+      if (!audio) return;
+      audio.currentTime = 0;
+      audio.play();
+    }
+
+    function toggleOpen() {
+      panels.forEach(panel => panel.classList.remove('open'));
+      this.classList.add('open');
+      playAudio(this.dataset.day);
+    }
+
+    function toggleActive(e) {
+      panels.forEach(panel => panel.classList.remove('open-active'));
+      if (e.propertyName.includes('flex')) {
+        this.classList.add('open-active');
+      }
+    }
+
+    panels.forEach(panel => panel.addEventListener('click', toggleOpen));
+    panels.forEach(panel => panel.addEventListener('transitionend', toggleActive));
+
+    function selectDay(weekDay) {
+      const dayPanel = document.querySelector(`.panel[data-day="${weekDay}"]`);
+      toggleOpen.bind(dayPanel)();
+    }
+
+    function addDays(date, days) {
+      const result = new Date(date);
+      return result.setDate(result.getDate() + days);
+    }
+    
+    function toDay(date) {
+      return new Date(date).getDay() + 1;
+    }
+
+    const yesterday = toDay(addDays(new Date(), -1));
+    const today = toDay(new Date())
+    const tomorrow = toDay(addDays(new Date(), 1));
+
+
+    setTimeout(selectDay.bind(null, today), 400);
+
+    const yesterdayButton = document.querySelector("#yesterday");
+    const todayButton = document.querySelector("#today");
+    const tomorrowButton = document.querySelector("#tomorrow");
+
+    yesterdayButton.addEventListener('click', selectDay.bind(null, yesterday));
+    todayButton.addEventListener('click', selectDay.bind(null, today));
+    tomorrowButton.addEventListener('click', selectDay.bind(null, tomorrow));
+
+  </script>
+
+</body>
+</html>
