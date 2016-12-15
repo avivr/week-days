@@ -154,20 +154,28 @@
   <audio src="audio/day-6.mp3" data-key="6"></audio>
   <audio src="audio/day-7.mp3" data-key="7"></audio>
 
+  <audio src="audio/yesterday.mp3" data-key="yesterday"></audio>
+  <audio src="audio/today.mp3" data-key="today"></audio>
+  <audio src="audio/tomorrow.mp3" data-key="tomorrow"></audio>
+
+
   <script>
     const panels = document.querySelectorAll('.panel');
     
     function playAudio(day) {
-      const audio = document.querySelector(`audio[data-key="${day}"]`);
-      if (!audio) return;
-      audio.currentTime = 0;
-      audio.play();
+      return new Promise((res) => {
+        const audio = document.querySelector(`audio[data-key="${day}"]`);
+        if (!audio) return res();
+        audio.addEventListener('ended', res);
+        audio.currentTime = 0;
+        audio.play();
+      });
     }
 
     function toggleOpen() {
       panels.forEach(panel => panel.classList.remove('open'));
       this.classList.add('open');
-      playAudio(this.dataset.day);
+      return playAudio(this.dataset.day);
     }
 
     function toggleActive(e) {
@@ -182,7 +190,7 @@
 
     function selectDay(weekDay) {
       const dayPanel = document.querySelector(`.panel[data-day="${weekDay}"]`);
-      toggleOpen.bind(dayPanel)();
+      return toggleOpen.bind(dayPanel)();
     }
 
     function addDays(date, days) {
@@ -198,16 +206,30 @@
     const today = toDay(new Date())
     const tomorrow = toDay(addDays(new Date(), 1));
 
-
     setTimeout(selectDay.bind(null, today), 400);
 
     const yesterdayButton = document.querySelector("#yesterday");
     const todayButton = document.querySelector("#today");
     const tomorrowButton = document.querySelector("#tomorrow");
 
-    yesterdayButton.addEventListener('click', selectDay.bind(null, yesterday));
-    todayButton.addEventListener('click', selectDay.bind(null, today));
-    tomorrowButton.addEventListener('click', selectDay.bind(null, tomorrow));
+    yesterdayButton.addEventListener('click', function() {
+      document.documentElement.style.pointerEvents = "none";
+      playAudio("yesterday")
+        .then(() => selectDay(yesterday))
+        .then(() => document.documentElement.style.pointerEvents = "auto");
+    });
+    todayButton.addEventListener('click', function() {
+      document.documentElement.style.pointerEvents = "none";
+      playAudio("today")
+        .then(() => selectDay(today))
+        .then(() => document.documentElement.style.pointerEvents = "auto");
+    }); 
+    tomorrowButton.addEventListener('click', function() {
+      document.documentElement.style.pointerEvents = "none";
+      playAudio("tomorrow")
+        .then(() => selectDay(tomorrow))
+        .then(() => document.documentElement.style.pointerEvents= "auto");;
+    });
 
   </script>
 
